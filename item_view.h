@@ -53,10 +53,10 @@ protected:
     }
 
     void processSingleField(const KeychainField& field) {
-        processSingleField(field.name, field.value, field.password, true);
+        processSingleField(field.name, field.value, field.password);
     }
 
-    void processSingleField(std::string label, std::string value, bool conceal, bool copy_button) {
+    void processSingleField(std::string label, std::string value, bool conceal) {
         auto my_index = row_index++;
 
         auto label_widget = Gtk::manage(new Gtk::Label(label));
@@ -81,18 +81,16 @@ protected:
 
         if (conceal && !isTOTP)
             value_widget->set_visibility(false);
-        attach(*value_widget, 1, my_index, conceal || copy_button ? 1 : 3, 1);
+        attach(*value_widget, 1, my_index, 1, 1);
 
-        if (copy_button) {
-            auto copy_button = Gtk::manage(new Gtk::Button("_Copy", true));
-            copy_button->signal_clicked().connect([value_widget]() {
-                auto valueText = value_widget->get_text();
-                auto clipboard = Gtk::Clipboard::get();
-                clipboard->set_text(valueText);
-                clipboard->store();
-            });
-            attach(*copy_button, 2, my_index, 1, 1);
-        }
+        auto copy_button = Gtk::manage(new Gtk::Button("_Copy", true));
+        copy_button->signal_clicked().connect([value_widget]() {
+            auto valueText = value_widget->get_text();
+            auto clipboard = Gtk::Clipboard::get();
+            clipboard->set_text(valueText);
+            clipboard->store();
+        });
+        attach(*copy_button, 2, my_index, 1, 1);
 
         if (conceal) {
             if (isTOTP) {
